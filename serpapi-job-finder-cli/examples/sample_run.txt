@@ -1,4 +1,0 @@
-> python -m job_finder.cli --title "customer success engineer" --location "United States" --remote --limit 5
-1. Customer Success Engineer — ExampleCo — Remote — 3 days ago
-   https://example.com/job/123
-...
