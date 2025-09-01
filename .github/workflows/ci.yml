@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    name: ruff • ubuntu-latest • py3.11
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - run: python -m pip install -U pip
+      - run: pip install ruff
+      - name: Ruff auto-fix & format
+        run: |
+          ruff check . --fix
+          ruff format
+
+  test:
+    needs: lint
+    name: ${{ matrix.os }} + py${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ["3.10", "3.11"]
+
+    env:
+      SERPAPI_API_KEY: ""            # tests are mocked; no real key needed
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+      PYTHONUTF8: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: "pip"
+      - name: Upgrade build tooling
+        run: python -m pip install -U pip setuptools wheel
+      - name: Install deps
+        run: pip install -e . pytest requests python-dotenv
+      - name: Sanity import check (cross-platform)
+        run: >
+          python -c "import sys, platform;
+          print('Python', sys.version);
+          print('Platform', platform.platform());
+          import requests, dotenv;
+          print('imports ok: requests, dotenv')"
+      - name: Run tests
+        run: pytest -q
