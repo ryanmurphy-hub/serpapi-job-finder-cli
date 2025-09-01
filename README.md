@@ -1,5 +1,16 @@
 # SerpApi Job Finder CLI
 
+[![CI](https://github.com/ryanmurphy-hub/serpapi-job-finder-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/ryanmurphy-hub/serpapi-job-finder-cli/actions/workflows/ci.yml)
+[![Ruff](https://img.shields.io/badge/linting-ruff-blueviolet)](https://github.com/astral-sh/ruff)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+
+A small CLI for searching Google Jobs via [SerpApi](https://serpapi.com).
+
+
+
+# SerpApi Job Finder CLI
+
 A small CLI for searching Google Jobs via [SerpApi](https://serpapi.com).
 
 ## Quickstart
