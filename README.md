@@ -1,6 +1,8 @@
 # SerpApi Job Finder CLI
 
 [![CI](https://github.com/ryanmurphy-hub/serpapi-job-finder-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/ryanmurphy-hub/serpapi-job-finder-cli/actions/workflows/ci.yml)
+![GitHub stars](https://img.shields.io/github/stars/ryanmurphy-hub/serpapi-job-finder-cli?style=social)
+![GitHub last commit](https://img.shields.io/github/last-commit/ryanmurphy-hub/serpapi-job-finder-cli)
 [![Ruff](https://img.shields.io/badge/linting-ruff-blueviolet)](https://github.com/astral-sh/ruff)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
