@@ -9,6 +9,15 @@
 
 A small CLI for searching Google Jobs via [SerpApi](https://serpapi.com).
 
+## Demo in 10 seconds
+python run.py --demo
+
+## Live API (optional)
+# Windows PowerShell
+$env:SERPAPI_API_KEY="your_key"
+# macOS/Linux
+export SERPAPI_API_KEY="your_key"
+python run.py --engine google --q "customer success engineer" --limit 5
 
 
 # SerpApi Job Finder CLI
