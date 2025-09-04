@@ -42,7 +42,14 @@ def main():
         print("Tip: run with --demo to show output without a key/network.", file=sys.stderr)
         sys.exit(1)
 
-    items = (data.get("jobs_results") or data.get("organic_results") or [])[:args.limit]
+    items = data.get("jobs_results")
+    if not isinstance(items, list):
+        items = data.get("organic_results")
+    if not isinstance(items, list):
+        # fall back to empty list if neither key is a list
+        items = []
+    items = items[: (args.limit or 5)]
+
     for i, it in enumerate(items, 1):
         title = it.get("title") or it.get("job_title") or "N/A"
         link = it.get("link") or ""
