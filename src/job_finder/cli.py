@@ -1,6 +1,7 @@
 import argparse
 import os
 import json
+import time
 import requests
 from dotenv import load_dotenv
 
@@ -28,26 +29,26 @@ SAMPLE = {
     ]
 }
 
+
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments for the SerpApi Job Finder CLI."""
-    parser = argparse.ArgumentParser(
-        description="Search jobs via SerpApi Google Jobs"
-    )
-    parser.add_argument("--title", required=False, default="customer success engineer",
-                        help="Job title keywords")
-    parser.add_argument("--location", default="United States",
-                        help="City/region (default: United States)")
-    parser.add_argument("--remote", action="store_true",
-                        help="Prefer remote roles")
-    parser.add_argument("--company", default="",
-                        help="Filter to a company substring")
-    parser.add_argument("--limit", type=int, default=20,
-                        help="Max results to print")
-    parser.add_argument("--json-out",
-                        help="Optional path to write full JSON results")
-    parser.add_argument("--demo", action="store_true",
-                        help="Run with bundled sample data (no key or internet required)")
-    return parser.parse_args()
+    p = argparse.ArgumentParser(description="Search jobs via SerpApi Google Jobs")
+    p.add_argument("--title", default="customer success engineer",
+                   help="Job title keywords (default: customer success engineer)")
+    p.add_argument("--location", default="United States",
+                   help="City/region (default: United States)")
+    p.add_argument("--remote", action="store_true",
+                   help="Prefer remote roles")
+    p.add_argument("--company", default="",
+                   help="Filter to a company substring")
+    p.add_argument("--limit", type=int, default=20,
+                   help="Max results to print")
+    p.add_argument("--json-out",
+                   help="Optional path to write JSON results")
+    p.add_argument("--demo", action="store_true",
+                   help="Run with bundled sample data (no key or internet required)")
+    return p.parse_args()
+
 
 def search_jobs(
     title: str,
@@ -70,41 +71,53 @@ def search_jobs(
     if remote:
         params["remote"] = "true"
 
-    resp = requests.get("https://serpapi.com/search", params=params, timeout=30)
-    resp.raise_for_status()
+    # Gentle retry on 429; fail fast on other errors
+    url = "https://serpapi.com/search.json"
+    for i in range(3):
+        resp = requests.get(url, params=params, timeout=30)
+        if resp.status_code == 200:
+            break
+        if resp.status_code == 429:
+            time.sleep(2 ** i)
+            continue
+        resp.raise_for_status()
     results = resp.json()
 
     jobs = results.get("jobs_results", [])
-     if company:
+    if not isinstance(jobs, list):
+        jobs = []
+    if company:
         needle = company.lower()
         jobs = [
-        j for j in jobs
-        if needle in ((j.get("company_name") or j.get("company") or "").lower())
-    ]
-
+            j for j in jobs
+            if needle in ((j.get("company_name") or j.get("company") or "").lower())
+        ]
     return jobs[:limit]
+
 
 def print_jobs(jobs: list[dict]) -> None:
     for i, job in enumerate(jobs, 1):
         title = job.get("title") or job.get("job_title") or "N/A"
-        company = job.get("company_name", "N/A")
+        company = job.get("company_name") or job.get("company") or "N/A"
         location = job.get("location", "N/A")
         link = job.get("link", "N/A")
         print(f"{i}. {title} — {company} — {location}")
         print(f"   {link}")
+
 
 def main() -> None:
     """Main entrypoint for the CLI."""
     load_dotenv()
     args = parse_args()
 
-    if args.company:
-        needle = args.company.lower()
-        jobs = [
-            j for j in jobs
-            if needle in ((j.get("company_name") or j.get("company") or "").lower())
-    ]
-
+    if args.demo:
+        jobs = SAMPLE["jobs_results"][: args.limit]
+        if args.company:
+            needle = args.company.lower()
+            jobs = [
+                j for j in jobs
+                if needle in ((j.get("company_name") or j.get("company") or "").lower())
+            ]
     else:
         jobs = search_jobs(
             args.title,
@@ -120,6 +133,7 @@ def main() -> None:
         print(f"Saved {len(jobs)} jobs to {args.json_out}")
     else:
         print_jobs(jobs)
+
 
 if __name__ == "__main__":
     main()
