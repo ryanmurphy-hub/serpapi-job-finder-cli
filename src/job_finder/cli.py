@@ -102,7 +102,6 @@ def print_jobs(jobs: list[dict]) -> None:
         location = job.get("location", "N/A")
         link = job.get("link", "N/A")
         print(f"{i}. {title} — {company} — {location}")
-        print(f"   {link}")
 
 
 def main() -> None:
