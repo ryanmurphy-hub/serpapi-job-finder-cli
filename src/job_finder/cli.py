@@ -75,11 +75,13 @@ def search_jobs(
     results = resp.json()
 
     jobs = results.get("jobs_results", [])
-    if company:
+     if company:
+        needle = company.lower()
         jobs = [
-            j for j in jobs
-            if company.lower() in (j.get("company_name") or "").lower()
-        ]
+        j for j in jobs
+        if needle in ((j.get("company_name") or j.get("company") or "").lower())
+    ]
+
     return jobs[:limit]
 
 def print_jobs(jobs: list[dict]) -> None:
@@ -96,13 +98,13 @@ def main() -> None:
     load_dotenv()
     args = parse_args()
 
-    if args.demo:
-        jobs = SAMPLE["jobs_results"][: args.limit]
-        if args.company:
-            jobs = [
-                j for j in jobs
-                if args.company.lower() in (j.get("company_name") or "").lower()
-            ]
+    if args.company:
+        needle = args.company.lower()
+        jobs = [
+            j for j in jobs
+            if needle in ((j.get("company_name") or j.get("company") or "").lower())
+    ]
+
     else:
         jobs = search_jobs(
             args.title,
